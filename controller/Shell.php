@@ -11,10 +11,10 @@ class ShellController extends Controller {
     }
 
     public function execAction() {
-        if (!isset($_POST['shell'])) {
+        if (!isset($_POST['command'])) {
             return;
         }
-        $this->var['shell'] = $_POST['shell'];
+        $this->var['command'] = $this->qvar($_POST['command']);
         $script = $this->loadScript('shell_shell');
         $data = $this->runShell($script);
         if ($this->config['shellEncode'] != 'UTF-8') {

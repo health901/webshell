@@ -1,2 +1,2 @@
 <?php
-echo passthru($VAR['shell']);
+echo passthru($VAR['command']);

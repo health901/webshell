@@ -81,7 +81,7 @@ class Controller {
         }
     }
 
-    public function render($view) {
+    public function render($view, $data = NULL) {
         require(__DIR__ . '/html/' . $view . '.php');
     }
 
@@ -95,9 +95,13 @@ class Controller {
         }
     }
 
+    protected function qvar($string) {
+        return '"' . $string . '"';
+    }
+
     protected function replace($match) {
         if (isset($this->var[$match[1]])) {
-            return '"' . $this->var[$match[1]] . '"';
+            return $this->var[$match[1]];
         }
     }
 
