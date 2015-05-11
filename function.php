@@ -1,9 +1,11 @@
 <?php
-
-function loadScript($script){
-	$file = __DIR__.'/script/'.$script.'.php';
-	if(file_exists($file)){
-		$script = file_get_contents($file);
-		return $script;
-	}
+function url($c, $a = null, $p = array()) {
+    $params['c'] = $c;
+    if ($a) {
+        $params['a'] = $a;
+    }
+    $params['shell'] = $_GET['shell'];
+    $params = array_merge($params,$p);
+    return 'index.php?' . http_build_query($params);
 }
+
