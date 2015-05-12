@@ -7,7 +7,7 @@ class ShellController extends Controller {
     );
 
     public function action() {
-        $this->render('shell');
+        $this->render();
     }
 
     public function execAction() {
@@ -15,7 +15,7 @@ class ShellController extends Controller {
             return;
         }
         $this->var['command'] = $this->qvar($_POST['command']);
-        $script = $this->loadScript('shell_shell');
+        $script = $this->loadScript();
         $data = $this->runShell($script);
         if ($this->config['shellEncode'] != 'UTF-8') {
             $data = mb_convert_encoding($data, 'UTF-8', $this->config['shellEncode']);

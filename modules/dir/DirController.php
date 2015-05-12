@@ -9,7 +9,7 @@ class DirController extends Controller {
     public function action() {
         $dir = isset($_GET['dir']) ? $this->qvar($_GET['dir']) : '__DIR__';
         $this->var['dir'] = $dir;
-        $script = $this->loadScript('dir_list');
+        $script = $this->loadScript();
 //        echo $script;exit;
         $_data = $this->runShell($script);
         if (!$_data) {
@@ -23,7 +23,7 @@ class DirController extends Controller {
                 $data[mb_convert_encoding($k, 'UTF-8', $this->config['shellEncode'])] = $v;
             }
         }
-        $this->render('dir', $data);
+        $this->render(null, $data);
     }
 
 }

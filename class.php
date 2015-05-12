@@ -38,23 +38,27 @@ class App {
     public function getPages() {
         $pages = array();
         foreach ($this->controllers as $c => $controllers) {
-            if ($controllers->pages)
+            if ($controllers->pages) {
                 $pages[$c] = $controllers->pages;
+            }
         }
         return $pages;
     }
 
     protected function loadControllers() {
-        $dir = __DIR__ . '/controller/';
+        $dir = __DIR__ . '/modules/';
         $files = scandir($dir);
         foreach ($files as $file) {
-            if ($file == '.' || $file == '..')
+            if ($file == '.' || $file == '..') {
                 continue;
-            if (preg_match('/(\w+)\.php$/', $file, $match)) {
-                require_once($dir . $file);
-                $class = $match[1] . "Controller";
-                $this->controllers[strtolower($match[1])] = new $class($this->config);
             }
+            $classFile = $dir . $file . '/' . ucfirst(strtolower($file)) . 'Controller.php';
+            if (!file_exists($classFile)) {
+                continue;
+            }
+            require_once($classFile);
+            $class = ucfirst($file) . "Controller";
+            $this->controllers[strtolower($file)] = new $class($this->config);
         }
     }
 
@@ -65,9 +69,11 @@ class Controller {
     public $config;
     public $pages = array();
     protected $var;
+    protected $path;
 
     public function __construct($config = null) {
         $this->config = $config;
+        $this->path = $this->path();
     }
 
     public function run() {
@@ -81,12 +87,20 @@ class Controller {
         }
     }
 
-    public function render($view, $data = NULL) {
-        require(__DIR__ . '/html/' . $view . '.php');
+    protected function path() {
+        $class = get_class($this);
+        $reflect = new ReflectionClass($class);
+        return dirname($reflect->getFileName());
     }
 
-    public function loadScript($script) {
-        $file = __DIR__ . '/script/' . $script . '.php';
+    public function render($view = NULL, $data = NULL) {
+        $file = $view ? 'html_' . $view : 'html';
+        require($this->path . '/' . $file . '.php');
+    }
+
+    public function loadScript($script = NULL) {
+        $name = $script ? 'script_' . $script : 'script';
+        $file = $this->path . '/' . $name . '.php';
         if (file_exists($file)) {
             $script = file_get_contents($file);
             $script = str_replace('<?php', '', $script);
