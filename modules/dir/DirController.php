@@ -10,7 +10,6 @@ class DirController extends Controller {
         $dir = isset($_GET['dir']) ? $this->qvar($_GET['dir']) : '__DIR__';
         $this->var['dir'] = $dir;
         $script = $this->loadScript();
-//        echo $script;exit;
         $_data = $this->runShell($script);
         if (!$_data) {
             return;

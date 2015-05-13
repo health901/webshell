@@ -47,14 +47,44 @@
             $pages = $this->getPages();
             foreach ($pages as $c => $_pages) {
                 foreach ($_pages as $name => $page) {
-                    echo "<li><a href='".  url($c, $page)."'>{$name}</a></li>";
+                    echo "<li><a href='" . Controller::url($c, $page) . "'>{$name}</a></li>";
                 }
             }
             ?>
         </ul>
         <div class="container">
             <?php
+            if (isset($_GET['shell']) && $_GET['shell']) {
                 echo $this->controllerData;
+            } else {
+                $dirvers = App::loadDrivers();
+                ?>
+                <form>
+                    Web Shell 地址: <input name="shell" style="width: 350px;"/>
+                    <br/><br/>
+                    Shell 类型:
+                    <select style="width: 350px;" name="driver">
+                        <option value="">-----</option>
+                        <?php
+                        foreach ($dirvers as $driver => $code) {
+                            echo '<option value="' . $driver . '" data="' . htmlspecialchars($code) . '">' . $driver . '</option>';
+                        }
+                        ?>
+                    </select>
+                    <br/><br/>
+                    <input id="code" style="width: 500px;" readonly />
+                    <br/><br/>
+                    <button>Hack!</button>
+                </form>
+                <script>
+                    $(function(){
+                       $("[name='driver']").change(function(){
+                           $("#code").val($( "[name='driver'] option:selected").attr("data"));
+                       });
+                    });
+                </script>
+                <?php
+            }
             ?>
         </div>
     </body>

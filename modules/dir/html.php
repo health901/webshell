@@ -19,9 +19,9 @@
             $link = $line;
         }
         if ($type == 'f') {
-            $url = url('dir', 'download', array('f' => $link));
+            $url = Controller::url('dir', 'download', array('f' => $link));
         } else {
-            $url = url('dir', '', array('dir' => $link));
+            $url = Controller::url('dir', '', array('dir' => $link));
         }
         ?>
         <li>
