@@ -16,7 +16,7 @@ class App {
     }
 
     public function run() {
-        if (!isset($_GET['shell']) || !$_GET['shell']) {
+        if (!Func::getVar('shell')) {
             return $this;
         }
         $default = $this->config['defaultController'] ? $this->config['defaultController'] : 'index';
@@ -65,8 +65,8 @@ class App {
 
     protected function loadDriver() {
         $driver = isset($this->config['driver']) ? $this->config['driver'] . 'Driver' : 'defaultDriver';
-        if (isset($_GET['driver']) && $_GET['driver']) {
-            $driver = $_GET['driver'] . 'Driver';
+        if (Func::getVar('driver')) {
+            $driver = Func::getVar('driver') . 'Driver';
         }
         require_once(__DIR__ . '/driver/' . $driver . '.php');
         $this->driver = new $driver();
@@ -112,18 +112,18 @@ class Controller {
         if ($a) {
             $params['a'] = $a;
         }
-        if (isset($_GET['shell']) && $_GET['shell']) {
-            $params['shell'] = $_GET['shell'];
+        if (Func::getVar('shell')) {
+            $params['shell'] = Func::getVar('shell');
         }
-        if (isset($_GET['driver']) && $_GET['driver']) {
-            $params['driver'] = $_GET['driver'];
+        if (Func::getVar('driver')) {
+            $params['driver'] = Func::getVar('driver');
         }
         $params = array_merge($params, $p);
         return 'index.php?' . http_build_query($params);
     }
 
     public function run() {
-        $a = isset($_GET['a']) ? $_GET['a'] : '';
+        $a = Func::getVar('a');
         $method = $a . 'Action';
         if (method_exists($this, $a . 'Action')) {
             ob_start();
@@ -156,6 +156,7 @@ class Controller {
     }
 
     protected function qvar($string) {
+        $string = str_replace('$', "\\$", $string);
         return '"' . $string . '"';
     }
 
@@ -166,7 +167,7 @@ class Controller {
     }
 
     public function runShell($script, $ext = array()) {
-        $this->driver->url = $_GET['shell'];
+        $this->driver->url = Func::getVar('shell');
         return $this->driver->runShell($script, $ext);
     }
 
@@ -178,4 +179,16 @@ abstract class ShellDriver {
     public $shellCode;
 
     abstract public function runShell($script, $ext = array());
+}
+
+class Func {
+
+    static public function getVar($var) {
+        return isset($_GET[$var]) ? $_GET[$var] : NULL;
+    }
+
+    static public function postVar($var) {
+        return isset($_POST[$var]) ? $_POST[$var] : NULL;
+    }
+
 }

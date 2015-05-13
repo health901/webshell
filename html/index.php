@@ -54,7 +54,7 @@
         </ul>
         <div class="container">
             <?php
-            if (isset($_GET['shell']) && $_GET['shell']) {
+            if (Func::getVar('shell')) {
                 echo $this->controllerData;
             } else {
                 $dirvers = App::loadDrivers();

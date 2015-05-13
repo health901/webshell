@@ -1,12 +1,12 @@
 <?php
-$dir = $VAR['dir'];
+$dir = str_replace('\\','/',realpath($VAR['dir']));
 $f = scandir($dir);
-$d = array();
+$d = array('path' => $dir);
 foreach ($f as $a) {
     if (is_dir(preg_replace('/\/+/', '/', $dir . '/') . $a)) {
-        $d[$a] = 'd';
+        $d['files'][$a] = array('type'=>'folder');
     } else {
-        $d[$a] = 'f';
+        $d['files'][$a] = array('type'=>'file');
     }
 }
 echo serialize($d);
