@@ -3,7 +3,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <title>Web Shell</title>
+        <title>Web Shell 控制台</title>
         <script src="asserts/jquery-2.1.3.min.js" type="text/javascript"></script>
     </head>
     <body>
