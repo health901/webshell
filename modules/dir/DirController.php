@@ -7,7 +7,7 @@ class DirController extends Controller {
     );
 
     public function action() {
-        $dir = Func::getVar('dir') ? $this->qvar(str_replace('\\', '/', Func::getVar('dir'))) : '__DIR__';
+        $dir = Func::getVar('dir') ? $this->qvar(str_replace('\\', '/', Func::getVar('dir'))) : 'NULL';
         $this->var['dir'] = $dir;
         if ($this->config['shellEncode'] != 'UTF-8') {
             $this->var['dir'] = mb_convert_encoding($this->var['dir'], $this->config['shellEncode'], 'UTF-8');

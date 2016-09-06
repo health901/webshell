@@ -1,5 +1,10 @@
 <?php
-$dir = str_replace('\\','/',realpath($VAR['dir']));
+$dir  = $VAR['dir'];
+if(!$dir){
+	$dir = getcwd();
+}else{
+	$dir = str_replace('\\','/',realpath($dir));
+}
 $f = scandir($dir);
 $d = array('path' => $dir);
 foreach ($f as $a) {

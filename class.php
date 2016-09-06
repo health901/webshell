@@ -184,11 +184,23 @@ abstract class ShellDriver {
 class Func {
 
     static public function getVar($var) {
-        return isset($_GET[$var]) ? $_GET[$var] : NULL;
+        $return = isset($_GET[$var]) ? $_GET[$var] : NULL;
+        if (get_magic_quotes_gpc()) {
+            return stripslashes($return);
+        }
+        else {
+            return $return;
+        }
     }
 
     static public function postVar($var) {
-        return isset($_POST[$var]) ? $_POST[$var] : NULL;
+        $return =  isset($_POST[$var]) ? $_POST[$var] : NULL;
+        if (get_magic_quotes_gpc()) {
+            return stripslashes($return);
+        }else {
+            return $return;
+        }
+
     }
 
 }
